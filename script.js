@@ -684,7 +684,7 @@ window.addEventListener('DOMContentLoaded', () => {
         vh = window.innerHeight * 0.01;
       } else if(isIOS && isInStandaloneMode){
         // iOS PWA（全画面）
-        vh = window.screen.height * 0.01;
+        vh = window.visualViewport.height * 0.01; 
       } else if(isAndroid){
         // Android（全画面補正）
         vh = window.innerHeight * 0.01;
@@ -713,6 +713,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('load', adjustButtonHeights);
 window.addEventListener('resize', adjustButtonHeights);
+
 
 
 
