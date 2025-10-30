@@ -664,52 +664,58 @@ function updateResultList() {
 
 
 
-function getDeviceType() {
-  const ua = navigator.userAgent;
-  const isIOS = /iPhone|iPad|iPod/.test(ua);
-  const isAndroid = /Android/.test(ua);
-  const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-  return { isIOS, isAndroid, isInStandaloneMode };
-}
-
-function setVhForWelcome() {
-  const { isIOS, isAndroid, isInStandaloneMode } = getDeviceType();
+window.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('overlay');
 
-  overlay.addEventListener('click', () => {
-    let vh;
+  if (!sessionStorage.getItem('welcomeShown')) {
+    overlay.style.display = 'flex';
 
-    if(isIOS && !isInStandaloneMode){
-      // iOS Safari
-      vh = window.innerHeight * 0.01;
-    } else if(isIOS && isInStandaloneMode){
-      // iOS PWA
-      vh = window.screen.height * 0.01;
-    } else if(isAndroid){
-      // Android
-      vh = window.innerHeight * 0.01; // または全画面APIで調整可能
-    } else {
-      // その他
-      vh = window.innerHeight * 0.01;
-    }
+    overlay.addEventListener('click', () => {
 
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
+      // -------- 環境判定 --------
+      const ua = navigator.userAgent;
+      const isIOS = /iPhone|iPad|iPod/.test(ua);
+      const isAndroid = /Android/.test(ua);
+      const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-    overlay.style.transition = 'opacity 0.5s ease';
-    overlay.style.opacity = '0';
+      let vh;
+      if(isIOS && !isInStandaloneMode){
+        // iOS Safari（バーあり）
+        vh = window.innerHeight * 0.01;
+      } else if(isIOS && isInStandaloneMode){
+        // iOS PWA（全画面）
+        vh = window.screen.height * 0.01;
+      } else if(isAndroid){
+        // Android（全画面補正）
+        vh = window.innerHeight * 0.01;
+      } else {
+        // その他
+        vh = window.innerHeight * 0.01;
+      }
 
-    setTimeout(() => {
-      overlay.style.display = 'none';
-      sessionStorage.setItem('welcomeShown', 'true');
-      location.reload(); // 必要ならリロード
-    }, 500);
-  });
-}
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+      // -------- フェードアウト --------
+      overlay.style.transition = 'opacity 0.5s ease';
+      overlay.style.opacity = '0';
+
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        sessionStorage.setItem('welcomeShown', 'true'); // セッション中は再表示しない
+        location.reload(); // 必要ならリロード
+      }, 500);
+
+    });
+  } else {
+    overlay.style.display = 'none';
+  }
+});
+
 
 
 window.addEventListener('load', adjustButtonHeights);
 window.addEventListener('resize', adjustButtonHeights);
+
 
 
 
