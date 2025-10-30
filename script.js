@@ -679,6 +679,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
       let vh;
+
       if(isIOS && !isInStandaloneMode){
         // iOS Safari（バーあり）
         vh = window.innerHeight * 0.01;
@@ -686,7 +687,16 @@ window.addEventListener('DOMContentLoaded', () => {
         // iOS PWA（全画面）
         vh = window.screen.height * 0.01;
       } else if(isAndroid){
-        // Android（全画面補正）
+        // Android（Fullscreen API）
+        const docEl = document.documentElement;
+        if(docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(()=>{});
+        } else if(docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        } else if(docEl.msRequestFullscreen) {
+          docEl.msRequestFullscreen();
+        }
+
         vh = window.innerHeight * 0.01;
       } else {
         // その他
@@ -702,7 +712,7 @@ window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         overlay.style.display = 'none';
         sessionStorage.setItem('welcomeShown', 'true'); // セッション中は再表示しない
-        location.reload(); // 必要ならリロード
+        location.reload();
       }, 500);
 
     });
@@ -715,6 +725,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('load', adjustButtonHeights);
 window.addEventListener('resize', adjustButtonHeights);
+
 
 
 
