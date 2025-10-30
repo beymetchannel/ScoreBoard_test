@@ -664,31 +664,53 @@ function updateResultList() {
 
 
 
-window.addEventListener('DOMContentLoaded', () => {
+function getDeviceType() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
+  const isAndroid = /Android/.test(ua);
+  const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  return { isIOS, isAndroid, isInStandaloneMode };
+}
+
+function setVhForWelcome() {
+  const { isIOS, isAndroid, isInStandaloneMode } = getDeviceType();
   const overlay = document.getElementById('overlay');
 
-  // セッション中に一度表示したかチェック
-  if (!sessionStorage.getItem('welcomeShown')) {
-    overlay.style.display = 'flex';
+  overlay.addEventListener('click', () => {
+    let vh;
 
-    overlay.addEventListener('click', () => {
-      overlay.style.transition = 'opacity 0.5s ease';
-      overlay.style.opacity = '0';
+    if(isIOS && !isInStandaloneMode){
+      // iOS Safari
+      vh = window.innerHeight * 0.01;
+    } else if(isIOS && isInStandaloneMode){
+      // iOS PWA
+      vh = window.screen.height * 0.01;
+    } else if(isAndroid){
+      // Android
+      vh = window.innerHeight * 0.01; // または全画面APIで調整可能
+    } else {
+      // その他
+      vh = window.innerHeight * 0.01;
+    }
 
-      setTimeout(() => {
-        overlay.style.display = 'none';
-        sessionStorage.setItem('welcomeShown', 'true'); // このセッションではもう表示しない
-        location.reload(); // 画面リロードしたい場合のみ
-      }, 500);
-    });
-  } else {
-    overlay.style.display = 'none';
-  }
-});
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+    overlay.style.transition = 'opacity 0.5s ease';
+    overlay.style.opacity = '0';
+
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      sessionStorage.setItem('welcomeShown', 'true');
+      location.reload(); // 必要ならリロード
+    }, 500);
+  });
+}
 
 
 window.addEventListener('load', adjustButtonHeights);
 window.addEventListener('resize', adjustButtonHeights);
+
 
 
 
