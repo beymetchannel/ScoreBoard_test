@@ -276,8 +276,10 @@ function selectResult(side, type) {
   const labelMap = { SF:'SPIN', BF:'BURST', OF:'OVER', XF:'XTREME' };
   const leftScoreEl = document.getElementById('leftScore');
   const rightScoreEl = document.getElementById('rightScore');
-  const btn = document.getElementById(`battle${currentBattle}`);
   const resetBtn = document.querySelector('.reset-btn');
+  const btn = document.getElementById(`battle${currentBattle}`);
+
+  btn.classList.remove("spin","burst","over","xtreme");// 一旦、全部の色クラスを外す
 
   if(battleResults[currentBattle]){
     const prev = battleResults[currentBattle];
@@ -294,6 +296,11 @@ function selectResult(side, type) {
   btn.textContent = labelMap[type];
   btn.classList.remove('tab-left','tab-right','no-glow');
   btn.classList.add(side==='L'?'tab-left':'tab-right','no-glow');
+
+  if (type === "SF") btn.classList.add("spin");
+  if (type === "BF") btn.classList.add("burst");
+  if (type === "OF") btn.classList.add("over");
+  if (type === "XF") btn.classList.add("xtreme");
 
   // 展開を閉じる
   document.getElementById('battleOptions').classList.add('hidden');
@@ -667,66 +674,25 @@ function updateResultList() {
 window.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('overlay');
 
+  // セッション中に一度表示したかチェック
   if (!sessionStorage.getItem('welcomeShown')) {
     overlay.style.display = 'flex';
 
     overlay.addEventListener('click', () => {
-
-      // -------- 環境判定 --------
-      const ua = navigator.userAgent;
-      const isIOS = /iPhone|iPad|iPod/.test(ua);
-      const isAndroid = /Android/.test(ua);
-      const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-      let vh;
-      if(isIOS && !isInStandaloneMode){
-        // iOS Safari（バーあり）
-        vh = window.innerHeight * 0.01;
-      } else if(isIOS && isInStandaloneMode){
-        // iOS PWA（全画面）
-        vh = window.visualViewport.height * 0.01; 
-      } else if(isAndroid){
-        // Android（全画面補正）
-        vh = window.innerHeight * 0.01;
-      } else {
-        // その他
-        vh = window.innerHeight * 0.01;
-      }
-
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-      // -------- フェードアウト --------
       overlay.style.transition = 'opacity 0.5s ease';
       overlay.style.opacity = '0';
 
       setTimeout(() => {
         overlay.style.display = 'none';
-        sessionStorage.setItem('welcomeShown', 'true'); // セッション中は再表示しない
-        location.reload(); // 必要ならリロード
+        sessionStorage.setItem('welcomeShown', 'true'); // このセッションではもう表示しない
+        location.reload(); // 画面リロードしたい場合のみ
       }, 500);
-
     });
   } else {
     overlay.style.display = 'none';
   }
 });
 
+
 window.addEventListener('load', adjustButtonHeights);
 window.addEventListener('resize', adjustButtonHeights);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
